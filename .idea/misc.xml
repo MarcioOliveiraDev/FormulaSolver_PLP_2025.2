@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/AppUI/pom.xml" />
+        <option value="$PROJECT_DIR$/Expressoes1/pom.xml" />
+        <option value="$PROJECT_DIR$/Expressoes2/pom.xml" />
+        <option value="$PROJECT_DIR$/Funcional1/pom.xml" />
+        <option value="$PROJECT_DIR$/Funcional2/pom.xml" />
+        <option value="$PROJECT_DIR$/Funcional3/pom.xml" />
+        <option value="$PROJECT_DIR$/Imperativa1/pom.xml" />
+        <option value="$PROJECT_DIR$/Imperativa2/pom.xml" />
+        <option value="$PROJECT_DIR$/Objetos1/pom.xml" />
+        <option value="$PROJECT_DIR$/Objetos2/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="ms-11" project-jdk-type="JavaSDK" />
+</project>

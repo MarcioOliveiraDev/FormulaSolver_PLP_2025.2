@@ -80,7 +80,7 @@ public class Imp2Parser {
 		if(valores.size() == 0) {
 			return new ListaValor();
 		}
-	
+
 		Valor primeiro = (Valor) valores.get(0);
 		valores.remove(0);
 		return new ListaValor(primeiro, criaListaValor(valores));
@@ -96,6 +96,7 @@ SKIP : /* WHITE SPACE */
 | "\n"
 | "\r"
 | "\f"
+| "\u00a0"
 }
 
 SPECIAL_TOKEN : /* COMMENTS */
@@ -132,6 +133,7 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 */
 {
   < PROC: "proc" >
 | < CALL: "call" >
+| < PLANILHA: "planilha" >
 }
 
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
@@ -637,6 +639,8 @@ Comando PComandoSimples() :
 {
     (
     	retorno = PSkip()
+      | LOOKAHEAD(PId() <LBRACKET>)
+        retorno = ComandoAtribuicaoCelula()
       | retorno = PAtribuicao()
       | retorno = PComandoDeclaracao()
       | retorno = PWhile()
@@ -685,7 +689,10 @@ Declaracao PDeclaracao():
 		  LOOKAHEAD(PDeclaracaoVariavel() <COMMA>)
            retorno = PDeclaracaoComposta()
           |LOOKAHEAD(PDeclaracaoProcedimento() <COMMA>)
-           retorno = PDeclaracaoComposta() 
+           retorno = PDeclaracaoComposta()
+          | LOOKAHEAD(DeclaracaoPlanilha() <COMMA>)
+           retorno = PDeclaracaoComposta()
+          | retorno = DeclaracaoPlanilha()
 		  | retorno = PDeclaracaoVariavel()
 		  | retorno = PDeclaracaoProcedimento()
           | <LPAREN> retorno = PDeclaracao() <RPAREN>   		 
@@ -705,6 +712,9 @@ DeclaracaoComposta PDeclaracaoComposta():
 	 
 	 |  LOOKAHEAD(PDeclaracaoProcedimento() <COMMA>)
 	 d1 = PDeclaracaoProcedimento() <COMMA> d2 = PDeclaracao()
+
+	 |  LOOKAHEAD(DeclaracaoPlanilha() <COMMA>)
+             d1 = DeclaracaoPlanilha() <COMMA> d2 = PDeclaracao()
 	)
 	
 	{return new DeclaracaoComposta(d1, d2);}
@@ -812,4 +822,28 @@ DeclaracaoVariavel PDeclaracaoVariavel() :
 	{
 		return retorno;
 	}
+}
+
+// planilha
+Declaracao DeclaracaoPlanilha() :
+{
+   Token nome, linhas, colunas;
+}
+{
+   <PLANILHA> nome=<IDENTIFIER> <LBRACKET> linhas=<INTEGER_LITERAL> <RBRACKET> <LBRACKET> colunas=<INTEGER_LITERAL> <RBRACKET>
+   {
+      return new DecPlanilha(nome.image, Integer.parseInt(linhas.image), Integer.parseInt(colunas.image));
+   }
+}
+
+Comando ComandoAtribuicaoCelula() :
+{
+   Id nome;
+   Expressao linha, coluna, exp;
+}
+{
+   nome=PId() <LBRACKET> linha=PExpressao() <RBRACKET> <LBRACKET> coluna=PExpressao() <RBRACKET> <ATTRIB> exp=PExpressao()
+   {
+       return new ComandoAtribuicaoCelula(nome, linha, coluna, exp);
+   }
 }
