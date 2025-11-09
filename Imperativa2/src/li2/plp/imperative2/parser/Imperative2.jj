@@ -134,6 +134,8 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 */
   < PROC: "proc" >
 | < CALL: "call" >
 | < SHEET: "sheet" >
+| < SUM_FORMULA: "SUM" > // ja tem AND and tokes de expressões 1 =(
+| < AND_FORMULA: "AND" > // usando o sufixo _FORMULA para nossas formulas (meio que um build-in functions)
 }
 
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
@@ -490,6 +492,10 @@ Expressao PExpPrimaria() :
         retorno = ExpressaoAcessoCelulaRef()
 	  | LOOKAHEAD(PId() <LBRACKET>)
         retorno = ExpressaoAcessoCelula()
+
+      | retorno = PExpSumFormula()
+      | retorno = PExpAndFormula()
+
 	  | retorno = PId()
 	  | retorno = PValor() 
 	  | <LPAREN> retorno = PExpressao() <RPAREN>
@@ -894,4 +900,27 @@ Expressao ExpressaoAcessoCelulaRef() :
    {
        return new ExpAcessoCelulaRef(nome, (ValorString)ref);
    }
+}
+
+// Formulas da gente
+Expressao PExpSumFormula() :
+{
+   ListaExpressao args;
+}
+{
+    <SUM_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    {
+        return new ExpSumFormula(args);
+    }
+}
+
+Expressao PExpAndFormula() :
+{
+    ListaExpressao args;
+}
+{
+    <AND_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    {
+        return new ExpAndFormula(args);
+    }
 }

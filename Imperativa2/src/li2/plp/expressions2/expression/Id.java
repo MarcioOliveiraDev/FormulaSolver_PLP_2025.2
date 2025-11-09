@@ -21,7 +21,8 @@ public class Id implements Expressao {
 
 	public Valor avaliar(AmbienteExecucao ambiente)
 			throws VariavelNaoDeclaradaException {
-		return ambiente.get(this);
+		Valor valor = ambiente.get(this);
+		return valor.avaliar(ambiente);
 	}
 
 	/**
