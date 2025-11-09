@@ -1,30 +1,27 @@
-package li2.plp.imperative2.memory;
+package li2.plp.imperative2.expression;
 
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions2.expression.Expressao;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorInteiro;
+import li2.plp.expressions2.expression.ValorString;
 import li2.plp.expressions2.memory.AmbienteCompilacao;
 import li2.plp.expressions2.memory.AmbienteExecucao;
 import li2.plp.expressions2.memory.VariavelJaDeclaradaException;
 import li2.plp.expressions2.memory.VariavelNaoDeclaradaException;
 
+import java.util.HashMap;
+
 public class ValorPlanilha implements Valor {
 
-    private Expressao[][] celulas;
+    private HashMap<String, Expressao> celulas;
     private int linhas;
     private int colunas;
 
     public ValorPlanilha(int linhas, int colunas) {
         this.linhas = linhas;
         this.colunas = colunas;
-        this.celulas = new Expressao[linhas][colunas];
-
-        for (int i = 0; i < linhas; i++) {
-            for (int j = 0; j < colunas; j++) {
-                celulas[i][j] = new ValorInteiro(0);
-            }
-        }
+        this.celulas = new HashMap<>();
     }
 
     // métodos para Valor
@@ -40,7 +37,7 @@ public class ValorPlanilha implements Valor {
 
     @Override
     public Tipo getTipo(AmbienteCompilacao amb) throws VariavelNaoDeclaradaException, VariavelJaDeclaradaException {
-        return null;
+        return new TipoPlanilha();
     }
 
     @Override
@@ -54,22 +51,43 @@ public class ValorPlanilha implements Valor {
     }
 
     // métodos específicos de ValorPlanilha
-    public Expressao getCelula(int i, int j) {
-        if (i >= 0 && i < linhas && j >= 0 && j < colunas) {
-            return celulas[i][j];
+    public Expressao getCelula(String ref) {
+        String key = ref;
+        Expressao expressao = celulas.get(key);
+
+        if (expressao == null) {
+            return new ValorInteiro(0);
         }
-        throw new RuntimeException("Índice fora dos limites da planilha.");
+        return expressao;
+    }
+
+    // Método primário de escrita (por String)
+    public void setCelula(String ref, Expressao expressao) {
+        String key = ref;
+        celulas.put(key, expressao);
+    }
+
+    // --- Métodos de conveniência (para os comandos) ---
+
+    public Expressao getCelula(int i, int j) {
+        // Traduz (0,0) para "A1" e chama o método primário
+        String ref = converteIndicesParaRef(i, j);
+        return getCelula(ref);
     }
 
     public void setCelula(int i, int j, Expressao expressao) {
-        if (i >= 0 && i < linhas && j >= 0 && j < colunas) {
-            celulas[i][j] = expressao;
-        } else {
-            throw new RuntimeException("Índice fora dos limites da planilha.");
-        }
+        // Traduz (0,0) para "A1" e chama o método primário
+        String ref = converteIndicesParaRef(i, j);
+        setCelula(ref, expressao);
     }
 
-    // Este método define como a planilha será impressa na tela (comando write)
+    // referência no formato "A1", "B2", etc.
+    private static String converteIndicesParaRef(int row, int col) {
+        char colChar = (char) ('A' + col);
+        String rowStr = Integer.toString(row + 1);
+        return colChar + rowStr;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -77,7 +95,7 @@ public class ValorPlanilha implements Valor {
         for (int i = 0; i < linhas; i++) {
             sb.append("\n  [");
             for (int j = 0; j < colunas; j++) {
-                sb.append(celulas[i][j].toString());
+                sb.append(this.getCelula(i, j).toString());
                 if (j < colunas - 1) sb.append(", ");
             }
             sb.append("]");

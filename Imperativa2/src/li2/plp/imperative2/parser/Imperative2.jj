@@ -133,7 +133,7 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 */
 {
   < PROC: "proc" >
 | < CALL: "call" >
-| < PLANILHA: "planilha" >
+| < SHEET: "sheet" >
 }
 
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
@@ -485,8 +485,12 @@ Expressao PExpPrimaria() :
     Expressao retorno;
 }
 {
-	(  
-	    retorno = PId()
+	(
+	    LOOKAHEAD(PId() <LBRACKET> PValorString())
+        retorno = ExpressaoAcessoCelulaRef()
+	  | LOOKAHEAD(PId() <LBRACKET>)
+        retorno = ExpressaoAcessoCelula()
+	  | retorno = PId()
 	  | retorno = PValor() 
 	  | <LPAREN> retorno = PExpressao() <RPAREN>
 	)
@@ -639,15 +643,17 @@ Comando PComandoSimples() :
 {
     (
     	retorno = PSkip()
-      | LOOKAHEAD(PId() <LBRACKET>)
+    	| LOOKAHEAD(PId() <LBRACKET> PValorString())
+        retorno = ComandoAtribuicaoCelulaRef()
+        | LOOKAHEAD(PId() <LBRACKET>)
         retorno = ComandoAtribuicaoCelula()
-      | retorno = PAtribuicao()
-      | retorno = PComandoDeclaracao()
-      | retorno = PWhile()
-      | retorno = PIfThenElse()
-      | retorno = PIO()
-      | <LPAREN> retorno = PComando() <RPAREN>
-      | retorno = PChamadaProcedimento()
+        | retorno = PAtribuicao()
+        | retorno = PComandoDeclaracao()
+        | retorno = PWhile()
+        | retorno = PIfThenElse()
+        | retorno = PIO()
+        | <LPAREN> retorno = PComando() <RPAREN>
+        | retorno = PChamadaProcedimento()
    	)
     {
         return retorno;
@@ -830,10 +836,10 @@ Declaracao DeclaracaoPlanilha() :
    Token nome, linhas, colunas;
 }
 {
-   <PLANILHA> nome=<IDENTIFIER> <LBRACKET> linhas=<INTEGER_LITERAL> <RBRACKET> <LBRACKET> colunas=<INTEGER_LITERAL> <RBRACKET>
+   <SHEET> nome=<IDENTIFIER> <LBRACKET> linhas=<INTEGER_LITERAL> <RBRACKET> <LBRACKET> colunas=<INTEGER_LITERAL> <RBRACKET>
    {
-      return new DecPlanilha(nome.image, Integer.parseInt(linhas.image), Integer.parseInt(colunas.image));
-   }
+   return new DeclaracaoPlanilha(nome.image, Integer.parseInt(linhas.image), Integer.parseInt(colunas.image));
+}
 }
 
 Comando ComandoAtribuicaoCelula() :
@@ -845,5 +851,47 @@ Comando ComandoAtribuicaoCelula() :
    nome=PId() <LBRACKET> linha=PExpressao() <RBRACKET> <LBRACKET> coluna=PExpressao() <RBRACKET> <ATTRIB> exp=PExpressao()
    {
        return new ComandoAtribuicaoCelula(nome, linha, coluna, exp);
+   }
+}
+
+Expressao ExpressaoAcessoCelula() :
+{
+   Id nome;
+   Expressao linha, coluna;
+}
+{
+   // A sintaxe: P [ exp ] [ exp ]
+   nome=PId() <LBRACKET> linha=PExpressao() <RBRACKET> <LBRACKET> coluna=PExpressao() <RBRACKET>
+   {
+       // PId() já retorna um 'Id', por isso passamos 'nome' diretamente
+       return new ExpAcessoCelula(nome, linha, coluna);
+   }
+}
+
+Comando ComandoAtribuicaoCelulaRef() :
+{
+   Id nome;
+   Valor ref; // Recebe como Valor
+   Expressao exp;
+}
+{
+   // Sintaxe: P [ "A1" ] := exp
+   nome=PId() <LBRACKET> ref=PValorString() <RBRACKET> <ATTRIB> exp=PExpressao()
+   {
+       // Converte 'Valor' para 'ValorString'
+       return new ComandoAtribuicaoCelulaRef(nome, (ValorString)ref, exp);
+   }
+}
+
+Expressao ExpressaoAcessoCelulaRef() :
+{
+   Id nome;
+   Valor ref; // Recebe como Valor
+}
+{
+   // Sintaxe: P [ "A1" ]
+   nome=PId() <LBRACKET> ref=PValorString() <RBRACKET>
+   {
+       return new ExpAcessoCelulaRef(nome, (ValorString)ref);
    }
 }
