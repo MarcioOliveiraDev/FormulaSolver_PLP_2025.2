@@ -17,6 +17,8 @@ import li2.plp.imperative2.command.*;
 import li2.plp.imperative2.declaration.*;
 import li2.plp.imperative2.memory.*;
 import java.util.*;
+import li2.plp.imperative2.expression.*;
+import li2.plp.imperative2.expression.formulas.*;
 
 public class Imp2Parser {
 
@@ -136,6 +138,11 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 */
 | < SHEET: "sheet" >
 | < SUM_FORMULA: "SUM" > // ja tem AND and tokes de expressões 1 =(
 | < AND_FORMULA: "AND" > // usando o sufixo _FORMULA para nossas formulas (meio que um build-in functions)
+| < SUB_FORMULA: "SUB" >
+| < OR_FORMULA: "OR" >
+| < MEDIAN_FORMULA: "MEDIAN" >
+| < MAX_FORMULA: "MAX" >
+| < MIN_FORMULA: "MIN" >
 }
 
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
@@ -495,6 +502,11 @@ Expressao PExpPrimaria() :
 
       | retorno = PExpSumFormula()
       | retorno = PExpAndFormula()
+      | retorno = PExpSubFormula()
+      | retorno = PExpMaxFormula()
+      | retorno = PExpMinFormula()
+      | retorno = PExpOrFormula()
+      | retorno = PExpMedianFormula()
 
 	  | retorno = PId()
 	  | retorno = PValor() 
@@ -914,6 +926,17 @@ Expressao PExpSumFormula() :
     }
 }
 
+Expressao PExpSubFormula() :
+{
+   ListaExpressao args;
+}
+{
+    <SUB_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    {
+        return new ExpSubFormula(args);
+    }
+}
+
 Expressao PExpAndFormula() :
 {
     ListaExpressao args;
@@ -922,5 +945,50 @@ Expressao PExpAndFormula() :
     <AND_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
     {
         return new ExpAndFormula(args);
+    }
+}
+
+
+Expressao PExpMaxFormula() :
+{
+   ListaExpressao args;
+}
+{
+    <MAX_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    {
+        return new ExpMaxFormula(args);
+    }
+}
+
+Expressao PExpMinFormula() :
+{
+   ListaExpressao args;
+}
+{
+    <MIN_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    {
+        return new ExpMinFormula(args);
+    }
+}
+
+Expressao PExpOrFormula() :
+{
+   ListaExpressao args;
+}
+{
+    <OR_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    {
+        return new ExpOrFormula(args);
+    }
+}
+
+Expressao PExpMedianFormula() :
+{
+   ListaExpressao args;
+}
+{
+    <MEDIAN_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    {
+        return new ExpMedianFormula(args);
     }
 }
