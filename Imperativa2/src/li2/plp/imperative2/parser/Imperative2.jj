@@ -140,7 +140,7 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 */
 | < AND_FORMULA: "AND" > // usando o sufixo _FORMULA para nossas formulas (meio que um build-in functions)
 | < SUB_FORMULA: "SUB" >
 | < OR_FORMULA: "OR" >
-| < MEDIAN_FORMULA: "MEDIAN" >
+| < AVG_FORMULA: "AVG" >
 | < MAX_FORMULA: "MAX" >
 | < MIN_FORMULA: "MIN" >
 }
@@ -506,7 +506,7 @@ Expressao PExpPrimaria() :
       | retorno = PExpMaxFormula()
       | retorno = PExpMinFormula()
       | retorno = PExpOrFormula()
-      | retorno = PExpMedianFormula()
+      | retorno = PExpAvgFormula()
 
 	  | retorno = PId()
 	  | retorno = PValor() 
@@ -982,13 +982,13 @@ Expressao PExpOrFormula() :
     }
 }
 
-Expressao PExpMedianFormula() :
+Expressao PExpAvgFormula() :
 {
    ListaExpressao args;
 }
 {
-    <MEDIAN_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
+    <AVG_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
     {
-        return new ExpMedianFormula(args);
+        return new ExpAvgFormula(args);
     }
 }
