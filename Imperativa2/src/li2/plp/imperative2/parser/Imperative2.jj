@@ -143,6 +143,7 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 */
 | < AVG_FORMULA: "AVG" >
 | < MAX_FORMULA: "MAX" >
 | < MIN_FORMULA: "MIN" >
+| < IF_FORMULA: "IF" >
 }
 
 TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
@@ -507,6 +508,7 @@ Expressao PExpPrimaria() :
       | retorno = PExpMinFormula()
       | retorno = PExpOrFormula()
       | retorno = PExpAvgFormula()
+      | retorno = PExpIfFormula()
 
 	  | retorno = PId()
 	  | retorno = PValor() 
@@ -990,5 +992,22 @@ Expressao PExpAvgFormula() :
     <AVG_FORMULA> <LPAREN> args = PListaExpressao() <RPAREN>
     {
         return new ExpAvgFormula(args);
+    }
+}
+
+Expressao PExpIfFormula() :
+{
+        Expressao cond;
+        Expressao expTrue;
+        Expressao expFalse;
+}
+{
+   <IF_FORMULA> <LPAREN>
+           cond=PExpressao() <COMMA>
+           expTrue=PExpressao() <COMMA>
+           expFalse=PExpressao()
+       <RPAREN>
+    {
+        return new ExpIfFormula(cond, expTrue, expFalse);
     }
 }
