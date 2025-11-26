@@ -15,9 +15,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class ListaExpressao extends Lista<Expressao> implements Iterable<Expressao> {
-	public ListaExpressao() {
-
-	}
+	public ListaExpressao() {}
 
 	public ListaExpressao(Expressao expressao) {
 		super(expressao, new ListaExpressao());
