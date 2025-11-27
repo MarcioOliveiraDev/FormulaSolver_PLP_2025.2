@@ -49,7 +49,14 @@ public class ExpIfFormula implements Expressao {
 
     @Override
     public Tipo getTipo(AmbienteCompilacao amb) throws VariavelNaoDeclaradaException, VariavelJaDeclaradaException {
-        return null;
+        Tipo trueTipo = expTrue.getTipo(amb);
+        Tipo falseTipo = expFalse.getTipo(amb);
+
+        if (trueTipo == falseTipo) {
+            return trueTipo;
+        } else {
+            throw new RuntimeException("Os tipos dos ramos TRUE e FALSE da fórmula IF devem ser iguais.");
+        }
     }
 
     @Override
